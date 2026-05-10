@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Churn Detection System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .tab-active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white py-6 px-4 shadow-lg">
+        <div class="container mx-auto">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-chart-line text-3xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold">Customer Churn Detection System</h1>
+                        <p class="text-sm opacity-90">AI-Powered Telecom Customer Retention Analysis</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm">PITP Certified Data Scientist Program</span>
+                 </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="bg-white shadow-sm sticky top-0 z-10">
+        <div class="container mx-auto px-4">
+            <div class="flex space-x-1">
+                <button onclick="showTab('prediction')" id="prediction-tab" class="tab-btn px-6 py-3 font-medium text-gray-700 hover:text-purple-600 transition-colors tab-active">
+                    <i class="fas fa-user-plus mr-2"></i>Predict Churn
+                </button>
+                <button onclick="showTab('dashboard')" id="dashboard-tab" class="tab-btn px-6 py-3 font-medium text-gray-700 hover:text-purple-600 transition-colors">
+                    <i class="fas fa-chart-bar mr-2"></i>Dashboard
+                </button>
+                <button onclick="showTab('analysis')" id="analysis-tab" class="tab-btn px-6 py-3 font-medium text-gray-700 hover:text-purple-600 transition-colors">
+                    <i class="fas fa-analytics mr-2"></i>Analysis
+                </button>
+                <button onclick="showTab('about')" id="about-tab" class="tab-btn px-6 py-3 font-medium text-gray-700 hover:text-purple-600 transition-colors">
+                    <i class="fas fa-info-circle mr-2"></i>About
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Prediction Tab -->
+        <div id="prediction-content" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Input Form -->
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <h2 class="text-xl font-bold mb-6 text-gray-800">
+                        <i class="fas fa-user-edit mr-2 text-purple-600"></i>Customer Information
+                    </h2>
+                    <form id="prediction-form" class="space-y-4">
+                        <!-- Demographics -->
+                        <div class="border-b pb-4">
+                            <h3 class="font-semibold text-gray-700 mb-3">Demographics</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                                    <select name="gender" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="Female">Female</option>
+                                        <option value="Male">Male</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Senior Citizen</label>
+                                    <select name="SeniorCitizen" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Partner</label>
+                                    <select name="Partner" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Dependents</label>
+                                    <select name="Dependents" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Services -->
+                        <div class="border-b pb-4">
+                            <h3 class="font-semibold text-gray-700 mb-3">Services</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone Service</label>
+                                    <select name="PhoneService" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Multiple Lines</label>
+                                    <select name="MultipleLines" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="No phone service">No phone service</option>
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Internet Service</label>
+                                    <select name="InternetService" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="DSL">DSL</option>
+                                        <option value="Fiber optic">Fiber optic</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Online Security</label>
+                                    <select name="OnlineSecurity" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="No internet service">No internet service</option>
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Online Backup</label>
+                                    <select name="OnlineBackup" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="No internet service">No internet service</option>
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Device Protection</label>
+                                    <select name="DeviceProtection" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="No internet service">No internet service</option>
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tech Support</label>
+                                    <select name="TechSupport" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="No internet service">No internet service</option>
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Streaming TV</label>
+                                    <select name="StreamingTV" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="No internet service">No internet service</option>
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Streaming Movies</label>
+                                    <select name="StreamingMovies" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="No internet service">No internet service</option>
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Account Info -->
+                        <div class="border-b pb-4">
+                            <h3 class="font-semibold text-gray-700 mb-3">Account Information</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Contract</label>
+                                    <select name="Contract" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="Month-to-month">Month-to-month</option>
+                                        <option value="One year">One year</option>
+                                        <option value="Two year">Two year</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Paperless Billing</label>
+                                    <select name="PaperlessBilling" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                                    <select name="PaymentMethod" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="Electronic check">Electronic check</option>
+                                        <option value="Mailed check">Mailed check</option>
+                                        <option value="Bank transfer (automatic)">Bank transfer (automatic)</option>
+                                        <option value="Credit card (automatic)">Credit card (automatic)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Financial -->
+                        <div>
+                            <h3 class="font-semibold text-gray-700 mb-3">Financial Information</h3>
+                            <div class="grid grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tenure (months)</label>
+                                    <input type="number" name="tenure" min="0" max="72" value="12" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Monthly Charges ($)</label>
+                                    <input type="number" name="MonthlyCharges" min="0" step="0.01" value="50.00" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Total Charges ($)</label>
+                                    <input type="number" name="TotalCharges" min="0" step="0.01" value="600.00" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Model Selection -->
+                        <div>
+                            <h3 class="font-semibold text-gray-700 mb-3">Model Selection</h3>
+                            <select name="model" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="logistic">Logistic Regression (Best Performance)</option>
+                                <option value="random_forest">Random Forest</option>
+                                <option value="decision_tree">Decision Tree</option>
+                                <option value="knn">K-Nearest Neighbors</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="w-full btn-primary text-white font-semibold py-3 px-6 rounded-lg">
+                            <i class="fas fa-chart-line mr-2"></i>Predict Churn Risk
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Results Panel -->
+                <div class="space-y-6">
+                    <!-- Prediction Result -->
+                    <div id="prediction-result" class="bg-white rounded-xl card-shadow p-6 hidden">
+                        <h2 class="text-xl font-bold mb-4 text-gray-800">
+                            <i class="fas fa-chart-pie mr-2 text-purple-600"></i>Prediction Result
+                        </h2>
+                        <div id="result-content" class="space-y-4">
+                            <!-- Results will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="bg-white rounded-xl card-shadow p-6">
+                        <h2 class="text-xl font-bold mb-4 text-gray-800">
+                            <i class="fas fa-info-circle mr-2 text-purple-600"></i>Model Performance
+                        </h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="text-center p-4 bg-green-50 rounded-lg">
+                                <div class="text-2xl font-bold text-green-600">81.55%</div>
+                                <div class="text-sm text-gray-600">Logistic Regression</div>
+                            </div>
+                            <div class="text-center p-4 bg-blue-50 rounded-lg">
+                                <div class="text-2xl font-bold text-blue-600">79.91%</div>
+                                <div class="text-sm text-gray-600">Random Forest</div>
+                            </div>
+                            <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                                <div class="text-2xl font-bold text-yellow-600">75.73%</div>
+                                <div class="text-sm text-gray-600">K-Nearest Neighbors</div>
+                            </div>
+                            <div class="text-center p-4 bg-red-50 rounded-lg">
+                                <div class="text-2xl font-bold text-red-600">72.46%</div>
+                                <div class="text-sm text-gray-600">Decision Tree</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feature Importance -->
+                    <div class="bg-white rounded-xl card-shadow p-6">
+                        <h2 class="text-xl font-bold mb-4 text-gray-800">
+                            <i class="fas fa-star mr-2 text-purple-600"></i>Key Factors
+                        </h2>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium">Total Charges</span>
+                                <div class="flex items-center">
+                                    <div class="w-32 bg-gray-200 rounded-full h-2 mr-2">
+                                        <div class="bg-purple-600 h-2 rounded-full" style="width: 95%"></div>
+                                    </div>
+                                    <span class="text-xs text-gray-600">95%</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium">Monthly Charges</span>
+                                <div class="flex items-center">
+                                    <div class="w-32 bg-gray-200 rounded-full h-2 mr-2">
+                                        <div class="bg-purple-600 h-2 rounded-full" style="width: 88%"></div>
+                                    </div>
+                                    <span class="text-xs text-gray-600">88%</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium">Tenure</span>
+                                <div class="flex items-center">
+                                    <div class="w-32 bg-gray-200 rounded-full h-2 mr-2">
+                                        <div class="bg-purple-600 h-2 rounded-full" style="width: 76%"></div>
+                                    </div>
+                                    <span class="text-xs text-gray-600">76%</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium">Contract Type</span>
+                                <div class="flex items-center">
+                                    <div class="w-32 bg-gray-200 rounded-full h-2 mr-2">
+                                        <div class="bg-purple-600 h-2 rounded-full" style="width: 65%"></div>
+                                    </div>
+                                    <span class="text-xs text-gray-600">65%</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium">Payment Method</span>
+                                <div class="flex items-center">
+                                    <div class="w-32 bg-gray-200 rounded-full h-2 mr-2">
+                                        <div class="bg-purple-600 h-2 rounded-full" style="width: 52%"></div>
+                                    </div>
+                                    <span class="text-xs text-gray-600">52%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard-content" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Churn Distribution -->
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">
+                        <i class="fas fa-chart-pie mr-2 text-purple-600"></i>Churn Distribution
+                    </h2>
+                    <canvas id="churnDistribution"></canvas>
+                </div>
+
+                <!-- Model Comparison -->
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">
+                        <i class="fas fa-chart-bar mr-2 text-purple-600"></i>Model Performance Comparison
+                    </h2>
+                    <canvas id="modelComparison"></canvas>
+                </div>
+
+                <!-- Monthly Charges vs Churn -->
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">
+                        <i class="fas fa-chart-line mr-2 text-purple-600"></i>Monthly Charges vs Churn
+                    </h2>
+                    <canvas id="monthlyChargesChart"></canvas>
+                </div>
+
+                <!-- Contract Type Analysis -->
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">
+                        <i class="fas fa-chart-bar mr-2 text-purple-600"></i>Contract Type vs Churn
+                    </h2>
+                    <canvas id="contractChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Tab -->
+        <div id="analysis-content" class="tab-content hidden">
+            <div class="bg-white rounded-xl card-shadow p-6">
+                <h2 class="text-xl font-bold mb-6 text-gray-800">
+                    <i class="fas fa-microscope mr-2 text-purple-600"></i>Feature Importance Analysis
+                </h2>
+                <div class="mb-6">
+                    <canvas id="featureImportanceChart"></canvas>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4 text-gray-700">Confusion Matrix - Best Model</h3>
+                        <canvas id="confusionMatrix"></canvas>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4 text-gray-700">Classification Metrics</h3>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-semibold text-gray-700 mb-2">Logistic Regression</h4>
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <div><strong>Precision (Class 0):</strong> 0.86</div>
+                                    <div><strong>Recall (Class 0):</strong> 0.90</div>
+                                    <div><strong>Precision (Class 1):</strong> 0.68</div>
+                                    <div><strong>Recall (Class 1):</strong> 0.58</div>
+                                    <div><strong>F1-Score (Class 0):</strong> 0.88</div>
+                                    <div><strong>F1-Score (Class 1):</strong> 0.62</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Tab -->
+        <div id="about-content" class="tab-content hidden">
+            <div class="bg-white rounded-xl card-shadow p-8">
+                <h2 class="text-2xl font-bold mb-6 text-gray-800">
+                    <i class="fas fa-info-circle mr-2 text-purple-600"></i>About Customer Churn Detection System
+                </h2>
+                
+                <div class="prose max-w-none">
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-700">Project Overview</h3>
+                        <p class="text-gray-600 leading-relaxed">
+                            This Customer Churn Detection System is designed to help telecom companies identify customers who are likely to leave their service. 
+                            By analyzing various customer attributes and usage patterns, the system predicts churn probability using machine learning algorithms.
+                        </p>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-700">Dataset Information</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-semibold mb-2">Dataset Details</h4>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li><strong>Total Records:</strong> 7,043 customers</li>
+                                    <li><strong>Features:</strong> 20 predictive attributes</li>
+                                    <li><strong>Target Variable:</strong> Churn (Yes/No)</li>
+                                    <li><strong>Source:</strong> Telco Customer Churn Dataset</li>
+                                </ul>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-semibold mb-2">Feature Categories</h4>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li><strong>Demographics:</strong> Gender, Senior Citizen, Partner, Dependents</li>
+                                    <li><strong>Services:</strong> Phone, Internet, Streaming, Security</li>
+                                    <li><strong>Account:</strong> Contract, Billing, Payment Method</li>
+                                    <li><strong>Financial:</strong> Tenure, Monthly Charges, Total Charges</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-700">Machine Learning Models</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="border-l-4 border-purple-500 pl-4">
+                                <h4 class="font-semibold mb-2">Logistic Regression</h4>
+                                <p class="text-sm text-gray-600">Best performing model with 81.55% accuracy. Provides interpretable results and probability scores.</p>
+                            </div>
+                            <div class="border-l-4 border-blue-500 pl-4">
+                                <h4 class="font-semibold mb-2">Random Forest</h4>
+                                <p class="text-sm text-gray-600">Ensemble method with 79.91% accuracy. Robust to overfitting and provides feature importance.</p>
+                            </div>
+                            <div class="border-l-4 border-yellow-500 pl-4">
+                                <h4 class="font-semibold mb-2">K-Nearest Neighbors</h4>
+                                <p class="text-sm text-gray-600">Instance-based learning with 75.73% accuracy. Simple and effective for pattern recognition.</p>
+                            </div>
+                            <div class="border-l-4 border-red-500 pl-4">
+                                <h4 class="font-semibold mb-2">Decision Tree</h4>
+                                <p class="text-sm text-gray-600">Tree-based model with 72.46% accuracy. Easy to interpret and visualize decision rules.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-700">Key Insights</h3>
+                        <div class="bg-purple-50 p-6 rounded-lg">
+                            <ul class="space-y-3 text-gray-700">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-purple-600 mt-1 mr-3"></i>
+                                    <span><strong>Total Charges</strong> and <strong>Monthly Charges</strong> are the most influential factors in predicting churn</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-purple-600 mt-1 mr-3"></i>
+                                    <span>Customers with <strong>month-to-month contracts</strong> have higher churn rates</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-purple-600 mt-1 mr-3"></i>
+                                    <span><strong>Tenure</strong> duration significantly impacts customer retention</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-purple-600 mt-1 mr-3"></i>
+                                    <span>Payment method preferences correlate with churn likelihood</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-700">Technical Implementation</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold mb-2">Technologies Used</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                <div class="text-center">
+                                    <i class="fab fa-python text-2xl text-blue-600 mb-2"></i>
+                                    <div>Python</div>
+                                </div>
+                                <div class="text-center">
+                                    <i class="fas fa-brain text-2xl text-purple-600 mb-2"></i>
+                                    <div>Scikit-learn</div>
+                                </div>
+                                <div class="text-center">
+                                    <i class="fas fa-chart-bar text-2xl text-green-600 mb-2"></i>
+                                    <div>Pandas</div>
+                                </div>
+                                <div class="text-center">
+                                    <i class="fas fa-palette text-2xl text-pink-600 mb-2"></i>
+                                    <div>Tailwind CSS</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center pt-6 border-t">
+                        <p class="text-gray-600">
+                            <strong>PITP Certified Data Scientist Program</strong><br>
+                            Final Project by Muhammad Shayan Haider, Muhammad Hamza Anis & Kumail Mehdi<br>
+                            <span class="text-sm">© 2024 Customer Churn Detection System</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 px-4 mt-12">
+        <div class="container mx-auto text-center">
+            <p class="text-sm">© 2024 Customer Churn Detection System | PITP Certified Data Scientist Program</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>
