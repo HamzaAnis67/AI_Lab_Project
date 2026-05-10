@@ -21,6 +21,12 @@
     }
   ],
   "env": {
-    "BACKEND_URL": "https://your-app-name.onrender.com"
-  }
+    "BACKEND_URL": "https://ai-lab-project-u0i0.onrender.com"
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://ai-lab-project-u0i0.onrender.com/$1"
+    }
+  ]
 }
