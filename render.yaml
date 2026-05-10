@@ -2,10 +2,11 @@ services:
   - type: web
     name: customer-churn-detection
     env: python
-    pythonVersion: "3.11"  # Specify stable Python version
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:$PORT backend:app
+    buildCommand: pip install --upgrade pip setuptools && pip install -r requirements.txt
+    startCommand: python backend.py
     envVars:
       - key: PORT
         value: 10000
+      - key: PYTHONUNBUFFERED
+        value: "1"
     plan: free
