@@ -7,7 +7,7 @@ let featureNames = [];
 // Backend URL configuration
 const BACKEND_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:5000' 
-    : (process.env.BACKEND_URL || 'https://ai-lab-project-u0i0.onrender.com');
+    : 'https://ai-lab-project-u0i0.onrender.com';
 
 
 // Initialize the application
